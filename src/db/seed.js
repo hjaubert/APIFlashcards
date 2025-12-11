@@ -31,34 +31,104 @@ const seed = async () =>{
             }
         ]
 
-        const result = await db.insert(users).values(SeedUsers).returning()
+        const usersResult = await db.insert(users).values(SeedUsers).returning()
 
         const SeedCollections = [
             {
-                userId: result[0].id,
+                userId: usersResult[0].id,
                 title: 'Anglais',
-                description: 'Collection regroupant les flashcards pour l\anglais',
+                description: 'Collection regroupant les flashcards pour l\'anglais',
                 isPublic: true
             },
             {
-                userId: result[0].id,
+                userId: usersResult[0].id,
                 title: 'Mathématiques',
                 description: 'Collection regroupant les flashcards pour les mathématiques',
                 isPublic: false
             }
         ]
 
-        await db.insert(collections).values(SeedCollections)
+        const collectionsResult = await db.insert(collections).values(SeedCollections).returning()
+
+        const SeedFlashcards = [
+            {
+                collectionId: collectionsResult[0].id,
+                front: 'Stage',
+                back: 'Internship'
+            },
+            {
+                collectionId: collectionsResult[0].id,
+                front: 'Entreprise',
+                back: 'Company'
+            },
+            {
+                collectionId: collectionsResult[1].id,
+                front: '1+1',
+                back: '2'
+            },
+            {
+                collectionId: collectionsResult[1].id,
+                front: '2x2',
+                back: '4'
+            }
+        ]
+
+        const flashcardsResult = await db.insert(flashcards).values(SeedFlashcards).returning()
+
+        const SeedRevisions = [
+            {
+                flashcardId: flashcardsResult[1].id,
+                userId: usersResult[0].id,
+                level: 4,
+                nextRevision: (() => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 8);
+                    return d;
+                })()
+            }, 
+            {
+                flashcardId: flashcardsResult[1].id,
+                userId: usersResult[0].id,
+                level: 2,
+                nextRevision: (() => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 2);
+                    return d;
+                })()
+            },
+            {
+                flashcardId: flashcardsResult[1].id,
+                userId: usersResult[0].id,
+                level: 3,
+                nextRevision: (() => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 4);
+                    return d;
+                })()
+            },
+            {
+                flashcardId: flashcardsResult[1].id,
+                userId: usersResult[0].id,
+                level: 1,
+                nextRevision: (() => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + 1);
+                    return d;
+                })()
+            }
+        ]
+
+        await db.insert(revisions).values(SeedRevisions)
 
         console.log('---------------------------------------')
         console.log('Database seeded succesfully')
         console.log('---------------------------------------')
         console.log('Login with this user (regular user) :')
-        console.log('email :', result[0].email)
+        console.log('email :', usersResult[0].email)
         console.log('password : motdepasse')
         console.log('---------------------------------------')
         console.log('Or this user (admin)')
-        console.log('email :', result[0].email)
+        console.log('email :', usersResult[1].email)
         console.log('password : motdepasse')
         console.log('---------------------------------------')
 
