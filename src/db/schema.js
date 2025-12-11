@@ -17,7 +17,7 @@ export const collections = sqliteTable('collections', {
     userId: text('id_user').references(() => users.id).notNull(),
     title: text({length: 255}).notNull(),
     description: text({length: 255}),
-    public: integer({ mode: 'boolean' }).notNull()
+    isPublic: integer('is_public', { mode: 'boolean' }).notNull()
 })
 
 export const flashcards = sqliteTable('flashcards', {
