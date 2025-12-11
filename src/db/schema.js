@@ -8,7 +8,7 @@ export const users = sqliteTable('users', {
     firstname: text({length: 30}).notNull(),
     lastname: text({length: 50}).notNull(),
     password: text({length: 255}).notNull(),
-    isAdmin: boolean('is_admin').$defaultFn(() => false),
+    isAdmin: integer({ mode: 'boolean' }).$defaultFn(() => false),
     createdAt: integer('created_at', { mode: 'timestamp'}).$defaultFn(() => new Date())
 })
 
@@ -17,7 +17,7 @@ export const collections = sqliteTable('collections', {
     userId: text('id_user').references(() => users.id).notNull(),
     title: text({length: 255}).notNull(),
     description: text({length: 255}),
-    public: boolean().notNull()
+    public: integer({ mode: 'boolean' }).notNull()
 })
 
 export const flashcards = sqliteTable('flashcards', {
