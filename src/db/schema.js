@@ -14,15 +14,15 @@ export const users = sqliteTable('users', {
 
 export const collections = sqliteTable('collections', {
     id: text().primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('id_user').references(() => users.id).notNull(),
+    userId: text('id_user').references(() => users.id, {onDelete: 'cascade'}).notNull(),
     title: text({length: 255}).notNull(),
     description: text({length: 255}),
-    isPublic: integer('is_public',{ mode: 'boolean' }).notNull()
+    isPublic: integer('is_public', { mode: 'boolean' }).notNull()
 })
 
 export const flashcards = sqliteTable('flashcards', {
     id: text().primaryKey().$defaultFn(() => randomUUID()),
-    collectionId: text('id_collection').references(() => collections.id).notNull(),
+    collectionId: text('id_collection').references(() => collections.id, {onDelete: 'cascade'}).notNull(),
     front: text({length: 255}).notNull(),
     back: text({length: 255}).notNull(),
     frontUrl: text('front_url', {length: 255}),
@@ -31,9 +31,9 @@ export const flashcards = sqliteTable('flashcards', {
 
 export const revisions = sqliteTable('revisions', {
     id: text().primaryKey().$defaultFn(() => randomUUID()),
-    flashcardId: text('id_flashcard').references(() => flashcards.id).notNull(),
-    userId: text('id_user').references(() => users.id).notNull(),
+    flashcardId: text('id_flashcard').references(() => flashcards.id, {onDelete: 'cascade'}).notNull(),
+    userId: text('id_user').references(() => users.id, {onDelete: 'cascade'}).notNull(),
     level: integer().notNull(),
-    lastRevision: integer('last_revision', { mode: 'timestamp' }).$default(() => new Date()).notNull(),
+    lastRevision: integer('last_revision', { mode: 'timestamp' }).$default(() => new Date()),
     nextRevision: integer('next_revision', { mode: 'timestamp' }).notNull()
 })
