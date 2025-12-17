@@ -14,7 +14,7 @@ import 'dotenv/config'
  */
 export const register = async (req,res) => {
     try{
-        const {email,firstname,lastname,password,is_admin} = req.body
+        const {email,firstname,lastname,password,isAdmin} = req.body
 
         const hashedPassword = await bcrypt.hash(password,12)
 
@@ -22,7 +22,7 @@ export const register = async (req,res) => {
             email,
             firstname,
             lastname,
-            isAdmin: is_admin,
+            isAdmin,
             password: hashedPassword,
         }).returning({
             email: users.email,
