@@ -13,6 +13,17 @@ import 'dotenv/config'
  */
 export const getAllUsers = async (req,res) => {
     try{
+
+        const { userId } = req.user
+
+        const isAdmin = await db.select().from(users).where(eq(users.id,userId))
+
+        if(!isAdmin[0].isAdmin){
+            return res.status(404).send({
+                error: 'Page not found'
+            })
+        }
+
         const result = await db.select().from(users).orderBy(desc(users.createdAt))
 
         res.status(200).json(result)
