@@ -1,6 +1,7 @@
 import { request,response } from "express";
 import { db } from "../db/database.js";
-import {collections } from "../db/schema.js"
+import {collections,users } from "../db/schema.js"
+import { eq } from "drizzle-orm";
 
 /**
  * 
@@ -28,6 +29,41 @@ export const createCollection = async (req, res) => {
         console.log(error)
         res.status(500).json({
             error: 'Failed to create collection'
+        })
+    }
+}
+
+export const getCollection = async (req, res) => {
+
+    try{
+        const { id } = req.params;
+        const [getCollection] = await db.select().from(collections).where(eq(collections.id, id));
+
+        if(!getCollection){
+            return res.status(404).json({
+                message:"Collection not found",
+            })
+        }
+        if(!getCollection.isPublic){
+
+            const {userId} = req.user
+
+            const [getUser] = await db.select().from(users).where(eq(users.id, userId));
+
+            if(getCollection.userId != userId && !getUser.isAdmin){
+                res.status(500).json({
+                    message: 'You did not have the right to access this collection.',
+                })
+            }
+        }
+
+        res.status(201).send({ message: "Collection found",data: getCollection});
+
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({
+            error: 'Failed to get Collection'
         })
     }
 }
