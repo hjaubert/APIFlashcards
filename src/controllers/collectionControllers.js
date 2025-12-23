@@ -51,7 +51,7 @@ export const getCollection = async (req, res) => {
             const [getUser] = await db.select().from(users).where(eq(users.id, userId));
 
             if(getCollection.userId != userId && !getUser.isAdmin){
-                res.status(500).json({
+                return res.status(500).json({
                     message: 'You did not have the right to access this collection.',
                 })
             }
