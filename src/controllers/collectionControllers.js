@@ -1,7 +1,7 @@
 import { request,response } from "express";
 import { db } from "../db/database.js";
 import {collections,users } from "../db/schema.js"
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 /**
  * 
@@ -87,6 +87,30 @@ export const getMyCollection = async (req, res) => {
         console.log(error)
         res.status(500).json({
             error: 'Failed to get your Collection'
+        })
+    }
+}
+
+export const searchCollection = async (req, res) => {
+
+    try{
+        const { title } = req.params;
+
+        const getCollection = await db.select().from(collections).where(and( eq(collections.title, title), eq(collections.isPublic,true) ) );
+
+        if(!getCollection){
+            return res.status(404).json({
+                message:"Collection not found",
+            })
+        }
+
+        res.status(201).send({ message: "Collection found",data: getCollection});
+
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({
+            error: 'Failed to get Collection'
         })
     }
 }
