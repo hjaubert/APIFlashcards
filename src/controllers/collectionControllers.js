@@ -67,3 +67,26 @@ export const getCollection = async (req, res) => {
         })
     }
 }
+
+export const getMyCollection = async (req, res) => {
+
+    try{
+        const {userId} = req.user
+        const getCollection = await db.select().from(collections).where(eq(collections.userId, userId));
+
+        if(!getCollection){
+            return res.status(404).json({
+                message:"Collection not found",
+            })
+        }
+
+        res.status(201).send({ message: "Collection found",data: getCollection});
+
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({
+            error: 'Failed to get your Collection'
+        })
+    }
+}
