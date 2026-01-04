@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm"
 import { db } from "../db/database.js"
-import { flashcards } from "../db/schema.js"
+import { flashcards, collections, users } from "../db/schema.js"
 
 /**
  * 
@@ -34,13 +34,18 @@ export const createFlashcard = async (req, res) => {
     }
 }
 
+
+/**
+ * 
+ * @param {Request} req 
+ * @param {Response} res 
+ * @returns 
+ */
 export const getFlashCard = async (req, res) => {
     const { id } = req.params
 
     try {
-        const [searchedFlashcard] = await db.select()
-            .from(flashcards)
-            .where(eq(flashcards.id, id))
+        const [searchedFlashcard] = await db.select().from(flashcards).where(eq(flashcards.id, id))
 
         if(!searchedFlashcard){
             return res.status(404).json({
@@ -48,10 +53,26 @@ export const getFlashCard = async (req, res) => {
             })
         }
 
+        const [getCollection] = await db.select().from(collections).where(eq(collections.id, searchedFlashcard.collectionId));
+
+        if(!getCollection.isPublic){
+
+            const {userId} = req.user
+
+            const [getUser] = await db.select().from(users).where(eq(users.id, userId));
+
+            if(getCollection.userId != userId && !getUser.isAdmin){
+                return res.status(403).json({
+                    message: 'You did not have the right to access this Flashcard.',
+                })
+            }
+        }
+
         res.status(200).json({
             message: `Flashcard found`,
             data: searchedFlashcard
         })
+        
     } catch(error){
         console.error(error)
         res.status(500).json({
