@@ -51,7 +51,7 @@ export const getCollection = async (req, res) => {
             const [getUser] = await db.select().from(users).where(eq(users.id, userId));
 
             if(getCollection.userId != userId && !getUser.isAdmin){
-                return res.status(500).json({
+                return res.status(403).json({
                     message: 'You did not have the right to access this collection.',
                 })
             }
@@ -111,6 +111,50 @@ export const searchCollection = async (req, res) => {
         console.log(error)
         res.status(500).json({
             error: 'Failed to get Collection'
+        })
+    }
+}
+
+export const changeCollection = async (req, res) => {
+
+    try{
+        const { id } = req.params;
+        const [getCollection] = await db.select().from(collections).where(eq(collections.id, id));
+
+        if(!getCollection){
+            return res.status(404).json({
+                message:"Collection not found",
+            })
+        }
+        
+        const {userId} = req.user
+
+
+        if(getCollection.userId != userId){
+            return res.status(403).json({
+                message: 'You did not have the right to update this collection.',
+            })
+        }
+        
+        const { title, description , isPublic } = req.body;
+
+        if(title != undefined){
+            await db.update(collections).set({title: title}).where(eq(collections.id,id))
+        }
+        if(description != undefined){
+            await db.update(collections).set({description: description}).where(eq(collections.id,id))
+        }
+        if(isPublic != undefined){
+            await db.update(collections).set({isPublic: isPublic}).where(eq(collections.id,id))
+        }
+
+        res.status(201).send({ message: "Collection updated"});
+
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({
+            error: 'Failed to update Collection'
         })
     }
 }
