@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm"
+import { eq, and, lt } from "drizzle-orm"
 import { db } from "../db/database.js"
-import { flashcards, collections, users } from "../db/schema.js"
+import { flashcards, collections, users, revisions } from "../db/schema.js"
 
 /**
  * 
@@ -104,7 +104,46 @@ export const getAllFlashcards = async (req, res) => {
 
         const result = await db.select().from(flashcards).where(eq(flashcards.collectionId, collectionId)).orderBy("created_at", "desc")
 
+        if(result.length == 0){
+            return res.status(404).json({
+                message: "Flashcard not found"
+            })
+        }
+
         res.status(200).json(result)
+
+    } catch(error){
+        console.error(error)
+        res.status(500).send({
+            error: 'Failed to query flashcards',
+        })
+    }
+}
+
+export const getReviseFlashcards = async (req, res) => {
+
+    const { collectionId } = req.params
+
+    try {
+
+        const {userId} = req.user
+
+        if (!accessVerification(collectionId,userId)){
+            return res.status(403).json({
+                message: 'You did not have the right to access this Flashcard.',
+            })
+        }
+
+        const result = await db.select().from(flashcards).innerJoin(revisions,eq(flashcards.id,revisions.flashcardId)).where(and( eq(flashcards.collectionId, collectionId) ,lt(revisions.nextRevision, new Date()) )).orderBy("created_at", "desc")
+
+        if(result.length == 0){
+            return res.status(404).json({
+                message: "Flashcard not found"
+            })
+        }
+
+        res.status(200).json(result)
+
     } catch(error){
         console.error(error)
         res.status(500).send({
