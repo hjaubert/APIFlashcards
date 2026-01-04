@@ -158,3 +158,40 @@ export const changeCollection = async (req, res) => {
         })
     }
 }
+
+export const deleteCollection = async (req, res) => {
+
+    try{
+        const { id } = req.params;
+        const [getCollection] = await db.select().from(collections).where(eq(collections.id, id));
+
+        if(!getCollection){
+            return res.status(404).json({
+                message:"Collection not found",
+            })
+        }
+        
+        const {userId} = req.user
+
+
+        if(getCollection.userId != userId){
+            return res.status(403).json({
+                message: 'You did not have the right to update this collection.',
+            })
+        }
+
+        await db.delete(collections).where(eq(collections.id, id));
+
+        res.status(201).send({ message: "Collection deleted"});
+
+
+
+
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).json({
+            error: 'Failed to update Collection'
+        })
+    }
+}
