@@ -4,16 +4,18 @@ import {collections,users } from "../db/schema.js"
 import { eq, and } from "drizzle-orm";
 
 /**
- * 
- * @param {request} req 
+ * method for creating a collection
+ * @param {request} req (title,description,isPublic)
  * @param {response} res 
- * @returns 
+ * @returns status 201 and the collection created
  */
 export const createCollection = async (req, res) => {
     const { title, description , isPublic } = req.body;
 
     const {userId} = req.user
 
+
+    //insert the collection into the database
     try{
         const newCollection = await db.insert(collections).values({
             userId,
@@ -33,6 +35,12 @@ export const createCollection = async (req, res) => {
     }
 }
 
+/**
+ * method to retrieve a collection
+ * @param {request} req (id)
+ * @param {response} res 
+ * @returns status 200 and collection
+ */
 export const getCollection = async (req, res) => {
 
     try{
@@ -44,6 +52,8 @@ export const getCollection = async (req, res) => {
                 message:"Collection not found",
             })
         }
+
+        // check if he has permission
         if(!getCollection.isPublic){
 
             const {userId} = req.user
@@ -57,7 +67,7 @@ export const getCollection = async (req, res) => {
             }
         }
 
-        res.status(201).send({ message: "Collection found",data: getCollection});
+        res.status(200).send({ message: "Collection found",data: getCollection});
 
     }
     catch(error){
@@ -68,6 +78,12 @@ export const getCollection = async (req, res) => {
     }
 }
 
+/**
+ * method to retrieve user collections
+ * @param {request} req 
+ * @param {response} res 
+ * @returns status 200 and all user collections
+ */
 export const getMyCollection = async (req, res) => {
 
     try{
@@ -80,7 +96,7 @@ export const getMyCollection = async (req, res) => {
             })
         }
 
-        res.status(201).send({ message: "Collection found",data: getCollection});
+        res.status(200).send({ message: "Collection found",data: getCollection});
 
     }
     catch(error){
@@ -91,6 +107,12 @@ export const getMyCollection = async (req, res) => {
     }
 }
 
+/**
+ * method for searching a collection
+ * @param {request} req (title)
+ * @param {response} res 
+ * @returns status 200 and the search collection
+ */
 export const searchCollection = async (req, res) => {
 
     try{
@@ -104,7 +126,7 @@ export const searchCollection = async (req, res) => {
             })
         }
 
-        res.status(201).send({ message: "Collection found",data: getCollection});
+        res.status(200).send({ message: "Collection found",data: getCollection});
 
     }
     catch(error){
@@ -115,6 +137,12 @@ export const searchCollection = async (req, res) => {
     }
 }
 
+/**
+ * method for updating collection
+ * @param {request} req (id)
+ * @param {response} res 
+ * @returns status 200
+ */
 export const changeCollection = async (req, res) => {
 
     try{
@@ -129,7 +157,7 @@ export const changeCollection = async (req, res) => {
         
         const {userId} = req.user
 
-
+        // check if he has permission
         if(getCollection.userId != userId){
             return res.status(403).json({
                 message: 'You did not have the right to update this collection.',
@@ -138,6 +166,7 @@ export const changeCollection = async (req, res) => {
         
         const { title, description , isPublic } = req.body;
 
+        //updates the collection
         if(title != undefined){
             await db.update(collections).set({title: title}).where(eq(collections.id,id))
         }
@@ -148,7 +177,7 @@ export const changeCollection = async (req, res) => {
             await db.update(collections).set({isPublic: isPublic}).where(eq(collections.id,id))
         }
 
-        res.status(201).send({ message: "Collection updated"});
+        res.status(200).send({ message: "Collection updated"});
 
     }
     catch(error){
@@ -159,6 +188,12 @@ export const changeCollection = async (req, res) => {
     }
 }
 
+/**
+ * method of deleting collection
+ * @param {request} req (id)
+ * @param {response} res 
+ * @returns status 200
+ */
 export const deleteCollection = async (req, res) => {
 
     try{
@@ -173,7 +208,7 @@ export const deleteCollection = async (req, res) => {
         
         const {userId} = req.user
 
-
+        // check if he has permission
         if(getCollection.userId != userId){
             return res.status(403).json({
                 message: 'You did not have the right to update this collection.',
@@ -182,9 +217,7 @@ export const deleteCollection = async (req, res) => {
 
         await db.delete(collections).where(eq(collections.id, id));
 
-        res.status(201).send({ message: "Collection deleted"});
-
-
+        res.status(200).send({ message: "Collection deleted"});
 
 
     }
