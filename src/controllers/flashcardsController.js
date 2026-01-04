@@ -34,6 +34,20 @@ export const createFlashcard = async (req, res) => {
     }
 }
 
+async function accessVerification(collectionId,userId){
+    const [getCollection] = await db.select().from(collections).where(eq(collections.id, collectionId));
+
+        if(!getCollection.isPublic){
+
+            const [getUser] = await db.select().from(users).where(eq(users.id, userId));
+
+            if(getCollection.userId != userId && !getUser.isAdmin){
+                return false
+            }
+        }
+    return true
+}
+
 
 /**
  * 
@@ -53,26 +67,19 @@ export const getFlashCard = async (req, res) => {
             })
         }
 
-        const [getCollection] = await db.select().from(collections).where(eq(collections.id, searchedFlashcard.collectionId));
+        const {userId} = req.user
 
-        if(!getCollection.isPublic){
-
-            const {userId} = req.user
-
-            const [getUser] = await db.select().from(users).where(eq(users.id, userId));
-
-            if(getCollection.userId != userId && !getUser.isAdmin){
-                return res.status(403).json({
-                    message: 'You did not have the right to access this Flashcard.',
-                })
-            }
+        if (!accessVerification(searchedFlashcard.collectionId,userId)){
+            return res.status(403).json({
+                message: 'You did not have the right to access this Flashcard.',
+            })
         }
 
         res.status(200).json({
             message: `Flashcard found`,
             data: searchedFlashcard
         })
-        
+
     } catch(error){
         console.error(error)
         res.status(500).json({
@@ -82,8 +89,20 @@ export const getFlashCard = async (req, res) => {
 }
 
 export const getAllFlashcards = async (req, res) => {
+
+    const { collectionId } = req.params
+
     try {
-        const result = await db.select().from(flashcards).orderBy("created_at", "desc")
+
+        const {userId} = req.user
+
+        if (!accessVerification(collectionId,userId)){
+            return res.status(403).json({
+                message: 'You did not have the right to access this Flashcard.',
+            })
+        }
+
+        const result = await db.select().from(flashcards).where(eq(flashcards.collectionId, collectionId)).orderBy("created_at", "desc")
 
         res.status(200).json(result)
     } catch(error){

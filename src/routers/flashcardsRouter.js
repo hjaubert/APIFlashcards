@@ -10,7 +10,7 @@ router.use(authenticateToken)
 
 router.post('/', validateBody(createFlashcardSchema), createFlashcard)
 router.get('/:id', getFlashCard)
-router.get('/', getAllFlashcards)
+router.get('/:collectionId/all', getAllFlashcards)
 router.patch('/:id', modifyFlashCard)
 router.delete('/:id', deleteQuestion)
 
