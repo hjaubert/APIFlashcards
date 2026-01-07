@@ -30,7 +30,7 @@ export const getAllUsers = async (req,res) => {
     }
     catch(error){
         res.status(500).send({
-            error: 'Failled to query questions'
+            error: 'Failled to query users'
         })
     }    
 }
@@ -41,7 +41,7 @@ export const getAllUsers = async (req,res) => {
  */
 export const getUser = async (req,res) => {
     try{
-        
+
         const { userId } = req.user
         const { id } = req.params
 
@@ -65,7 +65,39 @@ export const getUser = async (req,res) => {
     }
     catch(error){
         res.status(500).send({
-            error: 'Failled to query questions'
+            error: 'Failled to query user'
+        })
+    }    
+}
+
+/**
+ * 
+ * @param {response} res 
+ */
+export const deleteUser = async (req,res) => {
+    try{
+        
+        const { userId } = req.user
+        const { id } = req.params
+
+        const isAdmin = await db.select().from(users).where(eq(users.id,userId))
+
+        if(!isAdmin[0].isAdmin){
+            return res.status(404).send({
+                error: 'Page not found'
+            })
+        }
+
+        await db.delete(users).where(eq(users.id,id)).returning()
+
+
+        res.status(201).json({message: 'User deleted successfully'})
+    }
+
+    catch(error){
+        res.status(500).send({
+            error: 'Failled to delete user',
+            result: error.message
         })
     }    
 }
