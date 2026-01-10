@@ -154,11 +154,9 @@ export const getAllFlashcards = async (req, res) => {
  * @returns status 200 and list of flashcard
  */
 export const getReviseFlashcards = async (req, res) => {
-
-    const { collectionId } = req.params
-
     try {
-
+        
+        const { collectionId } = req.params
         const {userId} = req.user
 
         // check if he has permission
@@ -170,11 +168,22 @@ export const getReviseFlashcards = async (req, res) => {
             })
         }
 
-        const result = await db.select().from(flashcards).innerJoin(revisions,eq(flashcards.id,revisions.flashcardId)).where(and( eq(flashcards.collectionId, collectionId) ,lt(revisions.nextRevision, new Date()) )).orderBy("created_at", "desc")
+        const result = await db.select({
+            id: flashcards.id,
+            collectionId: flashcards.collectionId,
+            front: flashcards.front,
+            back: flashcards.back,
+            frontUrl: flashcards.frontUrl,
+            backUrl: flashcards.backUrl,
+            createdAt: flashcards.createdAt
+        }).from(flashcards)
+        .innerJoin(revisions,eq(flashcards.id,revisions.flashcardId))
+        .where(and( eq(flashcards.collectionId, collectionId) ,eq(revisions.userId,userId)  ,lt(revisions.nextRevision, new Date()) ))
+        .orderBy("created_at", "desc")
 
         if(result.length == 0){
-            return res.status(404).json({
-                message: "Flashcard not found"
+            return res.status(200).json({
+                message: "No flashcards to review"
             })
         }
 
@@ -195,9 +204,9 @@ export const getReviseFlashcards = async (req, res) => {
  * @returns status 200
  */
 export const modifyFlashCard = async (req, res) => {
-    const { id } = req.params
 
     try {
+        const { id } = req.params
         const [getFlashCard] = await db.select().from(flashcards).where(eq(flashcards.id, id))
 
         if(getFlashCard.length == 0){
@@ -216,7 +225,7 @@ export const modifyFlashCard = async (req, res) => {
             })
         }
 
-        //updates the collection
+        //updates the flashcard
         const { front, back, frontUrl, backUrl } = req.body;
 
         if(front != null){
@@ -249,10 +258,8 @@ export const modifyFlashCard = async (req, res) => {
  * @returns status 200
  */
 export const deleteQuestion = async (req, res) => {
-    const { id } = req.params
-
     try {
-
+        const { id } = req.params
         const [getFlashCard] = await db.select().from(flashcards).where(eq(flashcards.id, id))
 
         if(getFlashCard.length == 0){
@@ -279,6 +286,93 @@ export const deleteQuestion = async (req, res) => {
         console.error(error)
         res.status(500).send({
             error: 'Failed to delete flashcards',
+        })
+    }
+}
+
+/**
+ * funtion check next day to revise
+ * @param {*} level
+ */
+function nextDay(level){
+    switch(level){
+        case 1:
+            return 1
+        case 2 :
+            return 2
+        case 3 :
+            return 4
+        case 4 :
+            return 8
+        case 5 :
+            return 16
+        default :
+            return 16
+    }
+}
+
+
+/**
+ * method of revise a Flashcards
+ * @param {request} req (flashcardId)
+ * @param {response} res 
+ * @returns status 201 if revise created or 200 is update
+ */
+export const reviseFlashcards = async (req, res) => {
+
+    try {
+        const { flashcardId } = req.params
+        const {userId} = req.user
+
+        const [getRevisions] = await db.select().from(revisions).where(and (eq(revisions.flashcardId, flashcardId), eq(revisions.userId, userId)) )
+
+        const now = new Date();
+
+        if(!getRevisions){
+
+            const nextDate = new Date();
+            nextDate.setDate(now.getDate() + 1);
+
+            const newRevisions = await db.insert(revisions).values({
+                flashcardId,
+                userId,
+                level : 1,
+                lastRevision : now,
+                nextRevision : nextDate
+            }).returning()
+
+            res.status(201).json({
+                message: 'Revision created',
+                data: newRevisions
+            })
+        }
+        else{
+
+            //updates Revisions
+
+            if(getRevisions.level != 5){
+                await db.update(revisions).set({level: getRevisions.level+1}).where(and (eq(revisions.flashcardId, flashcardId), eq(revisions.userId, userId)))
+            }
+
+            await db.update(revisions).set({lastRevision: now}).where(and (eq(revisions.flashcardId, flashcardId), eq(revisions.userId, userId)))
+
+            const nextDate = new Date();
+            nextDate.setDate(now.getDate() + nextDay(getRevisions.level+1));
+
+            await db.update(revisions).set({nextRevision: nextDate}).where(and (eq(revisions.flashcardId, flashcardId), eq(revisions.userId, userId)))
+
+            const [newRevisions] = await db.select().from(revisions).where(and (eq(revisions.flashcardId, flashcardId), eq(revisions.userId, userId)) )
+
+            res.status(200).json({
+                message: 'Revision update',
+                data: newRevisions
+            })
+        }
+
+    } catch(error){
+        console.error(error)
+        res.status(500).send({
+            error: 'Failed to update Revision',
         })
     }
 }
