@@ -1,15 +1,15 @@
-import { request,response } from "express"
-import bcrypt from 'bcrypt'
+import {response } from "express"
 import { db } from "../db/database.js"
 import { users } from "../db/schema.js"
 import { eq, desc} from "drizzle-orm";
-import jwt from "jsonwebtoken"
 import 'dotenv/config'
 
 
 /**
- * 
+ * method for get all user
+ * @param {request} req
  * @param {response} res 
+ * @returns status 200 and users list
  */
 export const getAllUsers = async (req,res) => {
     try{
@@ -36,8 +36,10 @@ export const getAllUsers = async (req,res) => {
 }
 
 /**
- * 
+ * method for get one user
+ * @param {request} req (userId)
  * @param {response} res 
+ * @returns status 200 and user
  */
 export const getUser = async (req,res) => {
     try{
@@ -71,8 +73,10 @@ export const getUser = async (req,res) => {
 }
 
 /**
- * 
+ * method for delete one user
+ * @param {request} req (userId)
  * @param {response} res 
+ * @returns status 200
  */
 export const deleteUser = async (req,res) => {
     try{
