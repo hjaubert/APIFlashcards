@@ -1,6 +1,5 @@
 import { response } from 'express'
 import { request } from 'express'
-import { ZodError, ZodType } from 'zod'
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
 
@@ -22,8 +21,7 @@ export const authenticateToken = (req, res, next) => {
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET)
         const userId = decodedToken.userId
 
-        req.user = { userId }
-
+        req.user = {userId}
         next()
     } catch(error){
         res.status(401).json({error: 'Invalid token'})
