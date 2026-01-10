@@ -153,13 +153,75 @@ export const getReviseFlashcards = async (req, res) => {
 }
 
 export const modifyFlashCard = async (req, res) => {
-    
+    const { id } = req.params
+
+    try {
+        const [getFlashCard] = await db.select().from(flashcards).where(eq(flashcards.id, id))
+
+        if(getFlashCard.length == 0){
+            return res.status(404).json({
+                message: "Flashcard not found"
+            })
+        }
+
+
+        const [getCollection] = await db.select().from(collections).where(eq(collections.id, getFlashCard.collectionId))
+        const {userId} = req.user
+
+        if (!getCollection.userId != userId){
+            return res.status(403).json({
+                message: 'You did not have the right to access this Flashcard.',
+            })
+        }
+
+        const { front, back, frontUrl, backUrl } = req.body;
+
+        if(front != null){
+            await db.update(flashcards).set({front: front}).where(eq(flashcards.id,id))
+        }
+        if(back != null){
+            await db.update(flashcards).set({back: back}).where(eq(flashcards.id,id))
+        }
+        if(frontUrl != null){
+            await db.update(flashcards).set({frontUrl: frontUrl}).where(eq(flashcards.id,id))
+        }
+        if(backUrl != null){
+            await db.update(flashcards).set({backUrl: backUrl}).where(eq(flashcards.id,id))
+        }
+
+        res.status(200).json(result)
+
+    } catch(error){
+        console.error(error)
+        res.status(500).send({
+            error: 'Failed to query flashcards',
+        })
+    }
 }
 
 export const deleteQuestion = async (req, res) => {
     const { id } = req.params
 
     try {
+
+        const [getFlashCard] = await db.select().from(flashcards).where(eq(flashcards.id, id))
+
+        if(getFlashCard.length == 0){
+            return res.status(404).json({
+                message: "Flashcard not found"
+            })
+        }
+
+
+        const [getCollection] = await db.select().from(collections).where(eq(collections.id, getFlashCard.collectionId))
+        const {userId} = req.user
+
+        if (!getCollection.userId != userId){
+            return res.status(403).json({
+                message: 'You did not have the right to access this Flashcard.',
+            })
+        }
+        
         const [deleteFlashcard] = await db.select().from(flashcards).where(eq(id, flashcards.id))
 
     } catch(error){

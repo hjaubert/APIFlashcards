@@ -12,7 +12,7 @@ router.post('/', validateBody(createFlashcardSchema), createFlashcard)
 router.get('/:id', getFlashCard)
 router.get('/:collectionId/all', getAllFlashcards)
 router.get('/:collectionId/revise', getReviseFlashcards)
-router.patch('/:id', modifyFlashCard)
+router.put('/:id', modifyFlashCard)
 router.delete('/:id', deleteQuestion)
 
 export default router
