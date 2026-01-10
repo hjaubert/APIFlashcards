@@ -1,5 +1,6 @@
 import { response } from 'express'
 import { request } from 'express'
+import { ZodError, ZodType } from 'zod'
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
 
