@@ -189,12 +189,12 @@ export const modifyFlashCard = async (req, res) => {
             await db.update(flashcards).set({backUrl: backUrl}).where(eq(flashcards.id,id))
         }
 
-        res.status(200).json(result)
+        res.status(200).send({ message: "Flashcards updated"});
 
     } catch(error){
         console.error(error)
         res.status(500).send({
-            error: 'Failed to query flashcards',
+            error: 'Failed to update flashcards',
         })
     }
 }
@@ -212,7 +212,6 @@ export const deleteQuestion = async (req, res) => {
             })
         }
 
-
         const [getCollection] = await db.select().from(collections).where(eq(collections.id, getFlashCard.collectionId))
         const {userId} = req.user
 
@@ -222,9 +221,14 @@ export const deleteQuestion = async (req, res) => {
             })
         }
         
-        const [deleteFlashcard] = await db.select().from(flashcards).where(eq(id, flashcards.id))
+        await db.delete(flashcards).where(eq(flashcards.id, id));
+
+        res.status(200).send({ message: "Flashcards deleted"});
 
     } catch(error){
-
+        console.error(error)
+        res.status(500).send({
+            error: 'Failed to delete flashcards',
+        })
     }
 }
