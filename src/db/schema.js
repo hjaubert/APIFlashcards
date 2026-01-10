@@ -26,7 +26,8 @@ export const flashcards = sqliteTable('flashcards', {
     front: text({length: 255}).notNull(),
     back: text({length: 255}).notNull(),
     frontUrl: text('front_url', {length: 255}),
-    back_url: text('back_url', {length: 255})
+    backUrl: text('back_url', {length: 255}),
+    createdAt: integer('created_at', { mode: 'timestamp'}).$defaultFn(() => new Date())
 })
 
 export const revisions = sqliteTable('revisions', {

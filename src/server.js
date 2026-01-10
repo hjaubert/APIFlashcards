@@ -1,4 +1,5 @@
 import express from 'express'
+import flashcardsRouter from './routers/flashcardsRouter.js'
 import authRouter from './routers/authRouter.js';
 import collectionRouter from './routers/collectionRouter.js'
 import adminRouter from './routers/adminRouter.js';
@@ -9,6 +10,7 @@ const app = express()
 
 app.use(express.json())
 
+app.use('/flashcards', flashcardsRouter)
 
 app.use('/auth', authRouter)
 
