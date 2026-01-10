@@ -3,15 +3,25 @@ import { db } from "../db/database.js"
 import { flashcards, collections, users, revisions } from "../db/schema.js"
 
 /**
- * 
+ * method for creating a flashcard
  * @param {Request} req 
  * @param {Response} res 
- * @returns 
+ * @returns status 201 and the flashcard created
  */
 export const createFlashcard = async (req, res) => {
     try {
 
         const { collectionId, front, back, frontUrl, backUrl } = req.body
+        const {userId} = req.user
+
+        const [getCollection] = await db.select().from(collections).where(eq(collections.id, collectionId))
+
+        // check if he has permission
+        if (getCollection.userId != userId){
+            return res.status(403).json({
+                message: 'You did not have the right to access this Flashcard.',
+            })
+        }
 
         const newFlashcard = await db.insert(flashcards).values({
             collectionId,
@@ -34,6 +44,11 @@ export const createFlashcard = async (req, res) => {
     }
 }
 
+/**
+ * funtion check if he has permission
+ * @param {*} collectionId 
+ * @param {*} userId 
+ */
 async function accessVerification(collectionId,userId){
     const [getCollection] = await db.select().from(collections).where(eq(collections.id, collectionId));
 
@@ -50,15 +65,15 @@ async function accessVerification(collectionId,userId){
 
 
 /**
- * 
- * @param {Request} req 
+ * method to retrieve a flashcard
+ * @param {Request} req (id)
  * @param {Response} res 
- * @returns 
+ * @returns status 200 and the flashcard
  */
 export const getFlashCard = async (req, res) => {
-    const { id } = req.params
 
     try {
+        const { id } = req.params
         const [searchedFlashcard] = await db.select().from(flashcards).where(eq(flashcards.id, id))
 
         if(!searchedFlashcard){
@@ -69,7 +84,11 @@ export const getFlashCard = async (req, res) => {
 
         const {userId} = req.user
 
-        if (!accessVerification(searchedFlashcard.collectionId,userId)){
+        //check if he has permission
+
+        const hasAccess = await accessVerification(searchedFlashcard.collectionId, userId);
+
+         if (!hasAccess){
             return res.status(403).json({
                 message: 'You did not have the right to access this Flashcard.',
             })
@@ -88,15 +107,23 @@ export const getFlashCard = async (req, res) => {
     }
 }
 
+/**
+ * method to retrieve a flashcard from a collection
+ * @param {Request} req (collectionId)
+ * @param {Response} res 
+ * @returns status 200 and list of flashcard
+ */
 export const getAllFlashcards = async (req, res) => {
 
-    const { collectionId } = req.params
-
     try {
+        const { collectionId } = req.params
 
         const {userId} = req.user
 
-        if (!accessVerification(collectionId,userId)){
+        // check if he has permission
+        const hasAccess = await accessVerification(collectionId, userId);
+
+        if (!hasAccess){
             return res.status(403).json({
                 message: 'You did not have the right to access this Flashcard.',
             })
@@ -120,6 +147,12 @@ export const getAllFlashcards = async (req, res) => {
     }
 }
 
+/**
+ * method to retrieve a flashcard to review from a collection
+ * @param {Request} req (collectionId)
+ * @param {Response} res 
+ * @returns status 200 and list of flashcard
+ */
 export const getReviseFlashcards = async (req, res) => {
 
     const { collectionId } = req.params
@@ -128,7 +161,10 @@ export const getReviseFlashcards = async (req, res) => {
 
         const {userId} = req.user
 
-        if (!accessVerification(collectionId,userId)){
+        // check if he has permission
+        const hasAccess = await accessVerification(collectionId, userId);
+
+        if (!hasAccess){
             return res.status(403).json({
                 message: 'You did not have the right to access this Flashcard.',
             })
@@ -152,6 +188,12 @@ export const getReviseFlashcards = async (req, res) => {
     }
 }
 
+/**
+ * method for updating flashcard
+ * @param {Request} req (id)
+ * @param {Response} res 
+ * @returns status 200
+ */
 export const modifyFlashCard = async (req, res) => {
     const { id } = req.params
 
@@ -164,16 +206,17 @@ export const modifyFlashCard = async (req, res) => {
             })
         }
 
-
+        // check if he has permission
         const [getCollection] = await db.select().from(collections).where(eq(collections.id, getFlashCard.collectionId))
         const {userId} = req.user
 
-        if (!getCollection.userId != userId){
+        if (getCollection.userId != userId){
             return res.status(403).json({
                 message: 'You did not have the right to access this Flashcard.',
             })
         }
 
+        //updates the collection
         const { front, back, frontUrl, backUrl } = req.body;
 
         if(front != null){
@@ -199,6 +242,12 @@ export const modifyFlashCard = async (req, res) => {
     }
 }
 
+/**
+ * method of deleting flashcard
+ * @param {request} req (id)
+ * @param {response} res 
+ * @returns status 200
+ */
 export const deleteQuestion = async (req, res) => {
     const { id } = req.params
 
@@ -212,10 +261,11 @@ export const deleteQuestion = async (req, res) => {
             })
         }
 
+        // check if he has permission
         const [getCollection] = await db.select().from(collections).where(eq(collections.id, getFlashCard.collectionId))
         const {userId} = req.user
 
-        if (!getCollection.userId != userId){
+        if (getCollection.userId != userId){
             return res.status(403).json({
                 message: 'You did not have the right to access this Flashcard.',
             })

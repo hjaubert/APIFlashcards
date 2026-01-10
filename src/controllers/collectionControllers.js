@@ -167,13 +167,13 @@ export const changeCollection = async (req, res) => {
         const { title, description , isPublic } = req.body;
 
         //updates the collection
-        if(title != undefined){
+        if(title != null){
             await db.update(collections).set({title: title}).where(eq(collections.id,id))
         }
-        if(description != undefined){
+        if(description != null){
             await db.update(collections).set({description: description}).where(eq(collections.id,id))
         }
-        if(isPublic != undefined){
+        if(isPublic != null){
             await db.update(collections).set({isPublic: isPublic}).where(eq(collections.id,id))
         }
 
@@ -224,7 +224,7 @@ export const deleteCollection = async (req, res) => {
     catch(error){
         console.log(error)
         res.status(500).json({
-            error: 'Failed to update Collection'
+            error: 'Failed to deleted Collection'
         })
     }
 }

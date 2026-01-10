@@ -8,9 +8,10 @@ import 'dotenv/config'
 
 
 /**
- * 
- * @param {request} req 
+ * method for creating a user
+ * @param {request} req (email,firstname,lastname,password,isAdmin)
  * @param {response} res 
+ * @returns status 201 and the user created
  */
 export const register = async (req,res) => {
     try{
@@ -18,6 +19,7 @@ export const register = async (req,res) => {
 
         const hashedPassword = await bcrypt.hash(password,12)
 
+        //insert the user into the database
         const [newUsers] = await db.insert(users).values({
             email,
             firstname,
@@ -48,9 +50,10 @@ export const register = async (req,res) => {
 }
 
 /**
- * 
- * @param {request} req 
+ * method for get a user
+ * @param {request} req (email,password)
  * @param {response} res 
+ * @returns status 200 and user information
  */
 export const login = async (req,res) => {
     try{

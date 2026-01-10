@@ -2,12 +2,12 @@ import { z } from 'zod'
 
 export const createCollectionSchema = z.object({
     title: z.string().trim().min(1).max(255, "title text must be at most 255 characters"),
-    description: z.string().max(255, "description text must be at less 255 characters").default(""),
+    description: z.string().max(255, "description text must be at less 255 characters").nullish(),
     isPublic: z.boolean("isPublic must be a boolean"),
 })
 
 export const updateCollectionSchema = z.object({
-    title: z.string().trim().min(1).max(255, "title text must be at most 255 characters").default(undefined),
-    description: z.string().max(255, "description text must be at less 255 characters").default(undefined),
-    isPublic: z.boolean("isPublic must be a boolean").default(undefined),
+    title: z.string().trim().min(1).max(255, "title text must be at most 255 characters").nullish(),
+    description: z.string().max(255, "description text must be at less 255 characters").nullish(),
+    isPublic: z.boolean("isPublic must be a boolean").nullish(),
 })

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateBody, validateParams } from "../middleware/validation.js";
+import { validateBody } from "../middleware/validation.js";
 import { createFlashcardSchema } from "../models/flashcard.js";
 import { createFlashcard, deleteQuestion, getAllFlashcards, getReviseFlashcards, getFlashCard, modifyFlashCard } from "../controllers/flashcardsController.js";
 import { authenticateToken } from "../middleware/authenticateToken.js";
