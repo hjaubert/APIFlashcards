@@ -9,7 +9,7 @@ const router = Router()
 router.use(authenticateToken)
 
 router.post('/', validateBody(createFlashcardSchema), createFlashcard)
-router.post('/revise/:flashcardId',reviseFlashcards)
+router.get('/revise/:flashcardId',reviseFlashcards)
 router.get('/:id', getFlashCard)
 router.get('/:collectionId/all', getAllFlashcards)
 router.get('/:collectionId/revise', getReviseFlashcards)
