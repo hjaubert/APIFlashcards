@@ -129,7 +129,7 @@ const seed = async () =>{
         console.log('---------------------------------------')
         console.log('Or this user (admin)')
         console.log('email :', usersResult[1].email)
-        console.log('password : motdepasse')
+        console.log('password : 123456789')
         console.log('---------------------------------------')
 
     } catch(error) {
