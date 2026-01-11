@@ -626,3 +626,7 @@ Authorization: Bearer jwt_token
 ```
 
 ---
+
+## 🖼️ Database Schema
+
+<img width="1866" height="752" alt="image" src="https://github.com/user-attachments/assets/eb13abe5-e3f0-4173-82b7-c8b12f0c3d88" />
