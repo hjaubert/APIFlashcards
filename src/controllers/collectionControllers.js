@@ -120,7 +120,7 @@ export const searchCollection = async (req, res) => {
 
         const getCollection = await db.select().from(collections).where(and( eq(collections.title, title), eq(collections.isPublic,true) ) );
 
-        if(!getCollection){
+        if(getCollection.length === 0){
             return res.status(404).json({
                 message:"Collection not found",
             })
