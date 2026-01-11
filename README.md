@@ -8,7 +8,7 @@
 
 `DB_FILE=file:local.db`
 
-`JWT_TOKEN="insert a jwt token here"`
+`JWT_TOKEN=insert a jwt token here`
 
 ## 🏁 Start the project
 
@@ -220,14 +220,31 @@ Authorization: Bearer jwt_token
 
 **GET** `/collection/search/:title`
 
+#### Headers 
+
+```
+Authorization: Bearer jwt_token
+```
+
 **Purpose**: Searching a collection among all the public collections from its name.
 
-**Necessary authentication type**: public
+**Necessary authentication type**: authenticated
 
 #### Response (JSON)
 
 ```json
-
+{
+  "message": "Collection found",
+  "data": [
+    {
+      "id": "collection_id",
+      "userId": "user_id",
+      "title": "History",
+      "description": "Collection gathering history flashcards",
+      "isPublic": true
+    }
+  ]
+}
 ```
 
 ### 🔹 Edit a collection
@@ -499,7 +516,7 @@ Authorization: Bearer jwt_token
 
 ### 🔹 Revise a flashcard
 
-**POST** `/flashcards/revise/:flashcardId`
+**GET** `/flashcards/revise/:flashcardId`
 
 #### Headers 
 
@@ -511,16 +528,22 @@ Authorization: Bearer jwt_token
 
 **Necessary authentication type**: authenticated
 
-#### Body (JSON)
-
-```json
-
-```
-
 #### Response (JSON)
 
 ```json
-
+{
+  "message": "Revision created",
+  "data": [
+    {
+      "id": "revision_id",
+      "flashcardId": "flashcard_id",
+      "userId": "user_id",
+      "level": 1,
+      "lastRevision": "2026-01-11T11:47:24.000Z",
+      "nextRevision": "2026-01-12T11:47:24.000Z"
+    }
+  ]
+}
 ```
 
 ---
@@ -531,7 +554,7 @@ Authorization: Bearer jwt_token
 
 **GET** `/admin/users`
 
-#### Headers 
+#### Headers
 
 ```
 Authorization: Bearer jwt_token
@@ -546,7 +569,7 @@ Authorization: Bearer jwt_token
 ```json
 [
   {
-    "id": "a67f9e9d-44fd-4b69-b354-ea5f936f011f",
+    "id": "user_id",
     "email": "HugoMaganza@gmail.com",
     "firstname": "Hugo",
     "lastname": "Maganza",
@@ -555,7 +578,7 @@ Authorization: Bearer jwt_token
     "createdAt": "2026-01-11T03:14:46.000Z"
   },
   {
-    "id": "c00abccd-76c3-4679-a96f-e3a2b96571ee",
+    "id": "user_id",
     "email": "clementMoisson@wanadoo.com",
     "firstname": "Clément",
     "lastname": "Moisson",
@@ -564,7 +587,7 @@ Authorization: Bearer jwt_token
     "createdAt": "2026-01-11T03:10:23.000Z"
   },
   {
-    "id": "53b233b3-8ba6-48f9-8c8b-b326825b37c6",
+    "id": "user_id",
     "email": "julienMaganza@orange.fr",
     "firstname": "Julien",
     "lastname": "Maganza",
@@ -593,7 +616,7 @@ Authorization: Bearer jwt_token
 
 ```json
 {
-  "id": "a67f9e9d-44fd-4b69-b354-ea5f936f011f",
+  "id": "user_id",
   "email": "HugoMaganza@gmail.com",
   "firstname": "Hugo",
   "lastname": "Maganza",
